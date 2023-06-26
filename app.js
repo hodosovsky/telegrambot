@@ -1,59 +1,75 @@
 const TelegramBot = require("node-telegram-bot-api");
 const request = require("request");
+require("dotenv").config();
+const { currency } = require("./currency/currency");
+const { parsing } = require("./parsing/parsing");
 
 // replace the value below with the Telegram token you receive from @BotFather
-const token = "6074338724:AAFkHD6e4jlP6cHR8batffxXSlPk0ulJuPE";
+const token = process.env.TOKEN;
 
-// Create a bot that uses 'polling' to fetch new updates
+// // // Create a bot that uses 'polling' to fetch new updates
 const bot = new TelegramBot(token, { polling: true });
 
-// Matches "/echo [whatever]"
-bot.onText(/\/curse/, (msg, match) => {
-  const chatId = msg.chat.id;
-
-  bot.sendMessage(chatId, "Яка валюта вас цікавить?", {
-    reply_markup: {
-      inline_keyboard: [
-        [
-          {
-            text: "€ - EUR",
-            callback_data: "EUR",
-          },
-          {
-            text: "$ - USD",
-            callback_data: "USD",
-          },
-        ],
-      ],
-    },
-  });
+bot.onText(/\/curse/, (msg) => {
+  currency(msg, bot);
 });
 
-bot.on("callback_query", (query) => {
-  const id = query.message.chat.id;
-  request(
-    "https://api.privatbank.ua/p24api/pubinfo?json&exchange&coursid=5",
-    function (error, response, body) {
-      const data = JSON.parse(body);
+bot.onText(/\/films/, (msg) => {
+  parsing(msg, bot);
 
-      const result = data.filter((item) => item.ccy === query.data)[0];
-      const flags = {
-        EUR: "🇪🇺",
-        USD: "🇺🇸",
-        UAH: "🇺🇦",
-      };
-      console.log("result:", result);
+  // the captured "whatever"
 
-      let md = `*${flags[result?.ccy]} ${result?.ccy} 💱 ${result?.base_ccy} ${
-        flags[result?.base_ccy]
-      }*
-       Buy: _${result?.buy}
-       Sale: _${result?.sale}`;
-      bot.sendMessage(id, md, { parse_mode: "Markdown" });
-    }
-  );
+  //   bot.sendMessage(chatId, "hi");
+  // send back the matched "whatever" to the chat
 });
 
+// // Matches "/echo [whatever]"
+// bot.onText(/\/curse/, (msg, match) => {
+//   const chatId = msg.chat.id;
+
+//   bot.sendMessage(chatId, "Яка валюта вас цікавить?", {
+//     reply_markup: {
+//       inline_keyboard: [
+//         [
+//           {
+//             text: "€ - EUR",
+//             callback_data: "EUR",
+//           },
+//           {
+//             text: "$ - USD",
+//             callback_data: "USD",
+//           },
+//         ],
+//       ],
+//     },
+//   });
+// });
+
+// bot.on("callback_query", (query) => {
+//   const id = query.message.chat.id;
+//   request(
+//     "https://api.privatbank.ua/p24api/pubinfo?json&exchange&coursid=5",
+//     function (error, response, body) {
+//       const data = JSON.parse(body);
+
+//       const result = data.filter((item) => item.ccy === query.data)[0];
+//       const flags = {
+//         EUR: "🇪🇺",
+//         USD: "🇺🇸",
+//         UAH: "🇺🇦",
+//       };
+//       console.log("result:", result);
+
+//       let md = `*${flags[result?.ccy]} ${result?.ccy} 💱 ${result?.base_ccy} ${
+//         flags[result?.base_ccy]
+//       }*
+//        Buy: _${result?.buy}
+//        Sale: _${result?.sale}`;
+//       bot.sendMessage(id, md, { parse_mode: "Markdown" });
+//     }
+//   );
+// });
+currency();
 // Listen for any kind of message. There are different kinds of
 // messages.
 // bot.on("message", (msg) => {
