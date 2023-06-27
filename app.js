@@ -1,8 +1,9 @@
 const TelegramBot = require("node-telegram-bot-api");
 const request = require("request");
 require("dotenv").config();
-const { currency } = require("./currency/currency");
-const { parsing } = require("./parsing/parsing");
+const { currency } = require("./src/currency/currency");
+const { parsing } = require("./src/parsing/parsing");
+const { alarms } = require("./src/alarms/alarms");
 
 // replace the value below with the Telegram token you receive from @BotFather
 const token = process.env.TOKEN;
@@ -16,11 +17,9 @@ bot.onText(/\/curse/, (msg) => {
 
 bot.onText(/\/films/, (msg) => {
   parsing(msg, bot);
-
-  // the captured "whatever"
-
-  //   bot.sendMessage(chatId, "hi");
-  // send back the matched "whatever" to the chat
+});
+bot.onText(/\/alarms/, (msg) => {
+  alarms(msg, bot);
 });
 
 // // Matches "/echo [whatever]"
